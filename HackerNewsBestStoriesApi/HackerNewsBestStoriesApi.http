@@ -1,0 +1,20 @@
+@HackerNewsBestStoriesApi_HostAddress_http = http://localhost:2600
+@HackerNewsBestStoriesApi_HostAddress_https = http://localhost:2662
+
+GET {{HackerNewsBestStoriesApi_HostAddress_http}}/api/beststories
+Accept: application/json
+
+###
+
+GET {{HackerNewsBestStoriesApi_HostAddress_http}}/api/beststories?n=100
+Accept: application/json
+
+###
+
+GET {{HackerNewsBestStoriesApi_HostAddress_https}}/api/beststories
+Accept: application/json
+
+###
+
+GET {{HackerNewsBestStoriesApi_HostAddress_https}}/api/beststories?n=100
+Accept: application/json
