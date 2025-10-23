@@ -4,6 +4,6 @@ namespace HackerNewsBestStoriesApi.Services
 {
     public interface IHackerNewsClient
     {
-        Task<List<BestStoryResponse>> GetFirstNBestStoriesAsync(int n);
+        Task<List<BestStoriesResponseItem>> GetFirstNBestStoriesAsync(int n);
     }
 }

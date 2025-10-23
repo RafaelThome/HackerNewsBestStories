@@ -3,7 +3,7 @@
 namespace HackerNewsBestStoriesApi.Models
 {
     // partial mapping of HackerNews item
-    public class HackerNewsItemDto
+    public class HackerNewsItem
     {
         [JsonPropertyName("id")]
         public int Id { get; set; }

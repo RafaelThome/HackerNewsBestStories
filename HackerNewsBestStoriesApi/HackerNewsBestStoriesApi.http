@@ -1,5 +1,5 @@
 @HackerNewsBestStoriesApi_HostAddress_http = http://localhost:2600
-@HackerNewsBestStoriesApi_HostAddress_https = http://localhost:2662
+@HackerNewsBestStoriesApi_HostAddress_https = https://localhost:2662
 
 GET {{HackerNewsBestStoriesApi_HostAddress_http}}/api/beststories
 Accept: application/json

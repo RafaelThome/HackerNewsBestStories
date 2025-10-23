@@ -7,15 +7,6 @@ using System.Text.Json;
 
 namespace HackerNewsBestStoriesApi.Services
 {
-    public class HackerNewsClientOptions
-    {
-        public int BestIdsCacheSeconds { get; set; } = 1;
-        public int ItemCacheSeconds { get; set; } = 600;
-        public int MaxThreadserCore { get; set; } = 10;
-        public int MaxN { get; set; } = 1000;
-        public int RequestSemaphoreCount { get; set; } = 1000;
-    }
-
     public class HackerNewsClient : IHackerNewsClient
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -45,17 +36,17 @@ namespace HackerNewsBestStoriesApi.Services
             _semaphore = new SemaphoreSlim(_options.RequestSemaphoreCount);
         }
 
-        public async Task<List<BestStoryResponse>> GetFirstNBestStoriesAsync(int n)
+        public async Task<List<BestStoriesResponseItem>> GetFirstNBestStoriesAsync(int n)
         {
             var bestIds = await GetBestStoryIdsAsync() ?? throw new ApplicationException("Unexpected errror fetching top scored IDs");
             var idsToFetch = bestIds.Length > n 
                                     ? [.. bestIds.Take(n)]
                                     : bestIds;
 
-            var results = new List<BestStoryResponse>();
+            var results = new List<BestStoriesResponseItem>();
             var client = _httpClientFactory.CreateClient("hackernews");
 
-            var bag = new System.Collections.Concurrent.ConcurrentBag<BestStoryResponse>();
+            var bag = new System.Collections.Concurrent.ConcurrentBag<BestStoriesResponseItem>();
             await Parallel.ForEachAsync(idsToFetch
                                             , new ParallelOptions 
                                             { 
@@ -66,7 +57,7 @@ namespace HackerNewsBestStoriesApi.Services
                 var item = await GetItemCachedAsync(id, client, ct);
                 if (item != null)
                 {
-                    var resp = new BestStoryResponse
+                    var resp = new BestStoriesResponseItem
                     {
                         Title = item.Title ?? "",
                         Uri = item.Url,
@@ -115,12 +106,12 @@ namespace HackerNewsBestStoriesApi.Services
             return newIds;
         }
 
-        private async Task<HackerNewsItemDto?> GetItemCachedAsync(int id, HttpClient client, CancellationToken ct)
+        private async Task<HackerNewsItem?> GetItemCachedAsync(int id, HttpClient client, CancellationToken ct)
         {
             string cacheKey = $"hn_item_{id}";
 
             // Use GetOrCreateAsync and store Task result to avoid duplicate fetches (thundering herd)
-            var result = await _cache.GetOrCreateAsync<Task<HackerNewsItemDto?>>(cacheKey, async entry =>
+            var result = await _cache.GetOrCreateAsync<Task<HackerNewsItem?>>(cacheKey, async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_options.ItemCacheSeconds);
 
@@ -130,11 +121,11 @@ namespace HackerNewsBestStoriesApi.Services
                 {
                     var resp = await client.GetAsync($"item/{id}.json", ct);
                     if (resp.StatusCode == HttpStatusCode.NotFound) 
-                        return Task.FromResult<HackerNewsItemDto?>(null);
+                        return Task.FromResult<HackerNewsItem?>(null);
                     resp.EnsureSuccessStatusCode();
                     
                     var content = await resp.Content.ReadAsStringAsync(ct);
-                    var item = JsonSerializer.Deserialize<HackerNewsItemDto>(content, jsonSerOpt);
+                    var item = JsonSerializer.Deserialize<HackerNewsItem>(content, jsonSerOpt);
 
                     return Task.FromResult(item);
                 }

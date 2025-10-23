@@ -1,6 +1,6 @@
 ﻿namespace HackerNewsBestStoriesApi.Models
 {
-    public class BestStoryResponse
+    public class BestStoriesResponseItem
     {
         public string Title { get; set; } = "";
         public string? Uri { get; set; }
